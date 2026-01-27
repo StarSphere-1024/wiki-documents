@@ -123,6 +123,7 @@ Discovered ゾーンにセンサーアイコンが表示されるので、**conf
 以下の yaml ファイルは、ESPHome ファームウェアを使用して、レーダーモジュール付きの Seeed XIAO ESP32-C3 を Home Assistant に接続します：
 
 ```
+# ==== AUTO-SYNC START: xiao_24ghz_mmwave/xiao_24ghz_mmwave.yaml ====
 # Configuration for ESPHome
 substitutions:
   name: "xiao-24ghz-mmwave"
@@ -293,6 +294,7 @@ sensor:
         name: g8 move energy
       still_energy:
         name: g8 still energy
+# ==== AUTO-SYNC END ====
 ```
 
 ## 技術サポートと製品ディスカッション

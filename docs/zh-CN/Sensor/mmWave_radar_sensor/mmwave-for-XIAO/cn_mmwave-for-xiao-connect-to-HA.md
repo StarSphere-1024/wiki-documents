@@ -123,6 +123,7 @@ last_update:
 以下 yaml 文件将带有雷达模块的 Seeed XIAO ESP32-C3 连接到 Home Assistant，使用 ESPHome 固件：
 
 ```
+# ==== AUTO-SYNC START: xiao_24ghz_mmwave/xiao_24ghz_mmwave.yaml ====
 # Configuration for ESPHome
 substitutions:
   name: "xiao-24ghz-mmwave"
@@ -293,6 +294,7 @@ sensor:
         name: g8 move energy
       still_energy:
         name: g8 still energy
+# ==== AUTO-SYNC END ====
 ```
 
 ## 技术支持与产品讨论

@@ -122,6 +122,7 @@ ESPHome 是一个专为 ESP8266 / ESP32 设备设计的开源固件创建工具�
 <summary>点击此处复制 yaml 文件</summary>
 
 ```yaml
+# ==== AUTO-SYNC START: xiao-w5500-ethernet-adapter/xiao-w5500-ethernet-adapter.yaml ====
 esphome:
   name: seeed-esp32-s3
   friendly_name: Bluetooth Proxy
@@ -164,6 +165,7 @@ button:
   - platform: factory_reset
     id: factory_reset_btn
     name: Factory reset
+# ==== AUTO-SYNC END ====
 ```
 
 </details>

@@ -122,6 +122,7 @@ If you have not set up Home Assistant, you can click this link and follow the of
 <summary>Click here to copy the yaml file</summary>
 
 ```yaml
+# ==== AUTO-SYNC START: xiao-w5500-ethernet-adapter/xiao-w5500-ethernet-adapter.yaml ====
 esphome:
   name: seeed-esp32-s3
   friendly_name: Bluetooth Proxy
@@ -164,6 +165,7 @@ button:
   - platform: factory_reset
     id: factory_reset_btn
     name: Factory reset
+# ==== AUTO-SYNC END ====
 ```
 
 </details>

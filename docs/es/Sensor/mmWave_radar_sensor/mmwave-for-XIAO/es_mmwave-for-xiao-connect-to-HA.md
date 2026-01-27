@@ -123,6 +123,7 @@ A continuación, ¡puedes ser creativo con tu automatización!
 El siguiente archivo yaml conecta un Seeed XIAO ESP32-C3 con módulo Radar a Home Assistant, usando el firmware ESPHome:
 
 ```
+# ==== AUTO-SYNC START: xiao_24ghz_mmwave/xiao_24ghz_mmwave.yaml ====
 # Configuration for ESPHome
 substitutions:
   name: "xiao-24ghz-mmwave"
@@ -293,6 +294,7 @@ sensor:
         name: g8 move energy
       still_energy:
         name: g8 still energy
+# ==== AUTO-SYNC END ====
 ```
 
 ## Soporte Técnico y Discusión de Productos
