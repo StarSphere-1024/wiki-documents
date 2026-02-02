@@ -124,7 +124,7 @@ The following yaml file connects a Seeed XIAO ESP32-C3 with Radar module to Home
 
 ```
 # ==== AUTO-SYNC START: xiao_24ghz_mmwave/xiao_24ghz_mmwave.yaml ====
-# Configuration for ESPHome
+
 substitutions:
   name: "xiao-24ghz-mmwave"
   friendly_name: "XIAO 24GHz mmwave"
@@ -133,167 +133,112 @@ esphome:
   name: "${name}"
   friendly_name: "${friendly_name}"
   name_add_mac_suffix: True
+  on_boot:
+    then:
+      - deep_sleep.prevent: deepSleep
+      - switch.turn_off: RF_en_switch
+      - switch.turn_on: ADC_switch
+      - switch.turn_on: mmwave_en_switch
 
 esp32:
-  board: esp32-c3-devkitm-1
+  board: esp32-c6-devkitc-1
+  variant: esp32c6
+  flash_size: 4MB    
   framework:
-    type: arduino
+    type: esp-idf
 
 # Enable logging
 logger:
+  level: NONE
 
 # Enable Home Assistant API
 api:
+  on_client_connected:
+    - logger.log: "API client connected!"
+    - delay: 30s
+    - deep_sleep.allow: deepSleep
+
+  on_client_disconnected:
+    - deep_sleep.prevent: deepSleep
 
 ota:
   - platform: esphome
 
 wifi:
-  ssid: !secret wifi_ssid
-  password: !secret wifi_password
-
   # Enable fallback hotspot (captive portal) in case wifi connection fails
   ap:
     ssid: "${friendly_name}"
 
 captive_portal:
 
+deep_sleep:
+  id: deepSleep
+  run_duration: 30s
+  sleep_duration: 180min
+  wakeup_pin: GPIO2 # D2
+
 uart:
   id: mmWave_uart
-  tx_pin: GPIO5  # D3
-  rx_pin: GPIO4  # D2
-  baud_rate: 9600
+  tx_pin: GPIO16  # D6
+  rx_pin: GPIO17  # D7
+  baud_rate: 256000
   parity: NONE
   stop_bits: 1
 
 ld2410:
   id: ld2410_radar
   uart_id: mmWave_uart
+  throttle: 1000ms
 
-number:
+text_sensor:
   - platform: ld2410
-    timeout:
-      name: Radar Timeout
-    max_move_distance_gate:
-      name: Radar Max Move Distance
-    max_still_distance_gate:
-      name: Radar Max Still Distance
-    g0:
-      move_threshold:
-        name: g0 move threshold
-      still_threshold:
-        name: g0 still threshold
-    g1:
-      move_threshold:
-        name: g1 move threshold
-      still_threshold:
-        name: g1 still threshold
-    g2:
-      move_threshold:
-        name: g2 move threshold
-      still_threshold:
-        name: g2 still threshold
-    g3:
-      move_threshold:
-        name: g3 move threshold
-      still_threshold:
-        name: g3 still threshold
-    g4:
-      move_threshold:
-        name: g4 move threshold
-      still_threshold:
-        name: g4 still threshold
-    g5:
-      move_threshold:
-        name: g5 move threshold
-      still_threshold:
-        name: g5 still threshold
-    g6:
-      move_threshold:
-        name: g6 move threshold
-      still_threshold:
-        name: g6 still threshold
-    g7:
-      move_threshold:
-        name: g7 move threshold
-      still_threshold:
-        name: g7 still threshold
-    g8:
-      move_threshold:
-        name: g8 move threshold
-      still_threshold:
-        name: g8 still threshold
+    status:
+      id: "mmWave_status"
+      name: "mmWave Status"
+      deep_sleep_id: deepSleep
 
-binary_sensor:
-  - platform: ld2410
-    has_target:
-      name: Radar Target
-      id: radar_has_target
-    has_moving_target:
-      name: Radar Moving Target
-    has_still_target:
-      name: Radar Still Target
+external_components:
+  - source: github://pr#7942
+    components: [ "adc" ]
+
+  - source:
+      type: git
+      url: https://github.com/Seeed-Studio/xiao-esphome-projects
+      ref: main
+    components: [ ld2410 ]
 
 sensor:
-  - platform: ld2410
-    moving_distance:
-      name: Radar Moving Distance
-      id: moving_distance
-    still_distance:
-      name: Radar Still Distance
-      id: still_distance
-    moving_energy:
-      name: Radar Move Energy
-    still_energy:
-      name: Radar Still Energy
-    detection_distance:
-      name: Radar Detection Distance
-      id: radar_detection_distance
-    g0:
-      move_energy:
-        name: g0 move energy
-      still_energy:
-        name: g0 still energy
-    g1:
-      move_energy:
-        name: g1 move energy
-      still_energy:
-        name: g1 still energy
-    g2:
-      move_energy:
-        name: g2 move energy
-      still_energy:
-        name: g2 still energy
-    g3:
-      move_energy:
-        name: g3 move energy
-      still_energy:
-        name: g3 still energy
-    g4:
-      move_energy:
-        name: g4 move energy
-      still_energy:
-        name: g4 still energy
-    g5:
-      move_energy:
-        name: g5 move energy
-      still_energy:
-        name: g5 still energy
-    g6:
-      move_energy:
-        name: g6 move energy
-      still_energy:
-        name: g6 still energy
-    g7:
-      move_energy:
-        name: g7 move energy
-      still_energy:
-        name: g7 still energy
-    g8:
-      move_energy:
-        name: g8 move energy
-      still_energy:
-        name: g8 still energy
+  - platform: adc
+    id: Battery_ADC
+    name: "Battery measurement"
+    pin: GPIO1
+    attenuation: 12db
+    filters:
+      - lambda: return x * 2;
+    unit_of_measurement: "V"
+    update_interval: 5s
+
+output:
+  - platform: gpio
+    id: power_output
+    pin: GPIO19 # D8
+  - platform: gpio
+    id: RF_output
+    pin: GPIO3  # C6
+  - platform: gpio
+    id: ADC_output
+    pin: GPIO20 # D9
+
+switch:
+  - platform: output
+    id: mmwave_en_switch
+    output: power_output
+  - platform: output
+    id: RF_en_switch
+    output: RF_output
+  - platform: output
+    id: ADC_switch
+    output: ADC_output
 # ==== AUTO-SYNC END ====
 ```
 
